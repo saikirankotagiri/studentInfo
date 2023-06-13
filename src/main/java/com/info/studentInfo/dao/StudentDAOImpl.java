@@ -5,7 +5,6 @@ import jakarta.persistence.EntityManager;
 import jakarta.persistence.TypedQuery;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Repository;
-import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;
 
@@ -20,14 +19,17 @@ public class StudentDAOImpl implements StudentDAO{
     }
 
     @Override
-    @Transactional
-    public void save(Student theStudent) {
-        entityManager.persist(theStudent);
+    public Student save(Student theStudent) {
+        // if no id is provided for theStudent argument then default id = 0.
+        // because the default values for instance int variables is 0.
+        // so merge will create a new record if there is no id else will update the record with the provided id.
+        // merge will return the latest saved or updated record.
+        Student tempStudent = entityManager.merge(theStudent);
+        return tempStudent;
     }
 
     @Override
     public Student findById(Integer id) {
-
         Student tempStudent = entityManager.find(Student.class, id);
         return  tempStudent;
     }
@@ -40,32 +42,29 @@ public class StudentDAOImpl implements StudentDAO{
     }
 
     @Override
-    public List<Student> findByLastName(String lastName) {
-        TypedQuery<Student> theQuery = entityManager.createQuery("FROM Student WHERE lastName=:theLastName", Student.class);
-        theQuery.setParameter("theLastName", lastName);
-        return theQuery.getResultList();
-    }
-
-    // below updated student object is passed as argument
-    @Override
-    @Transactional
-    public void update(Student theStudent) {
-        entityManager.merge(theStudent);
-
-    }
-
-    @Override
-    @Transactional
     public void delete(Integer id) {
         Student tempStudent = entityManager.find(Student.class, id);
         entityManager.remove(tempStudent);
     }
 
     @Override
-    @Transactional
+    public List<Student> findByLastName(String lastName) {
+        TypedQuery<Student> theQuery = entityManager.createQuery("FROM Student WHERE lastName=:theLastName", Student.class);
+        theQuery.setParameter("theLastName", lastName);
+        return theQuery.getResultList();
+    }
+
+    @Override
     public int deleteAll() {
         int numRowsDeleted = entityManager.createQuery("DELETE FROM Student").executeUpdate();
         return  numRowsDeleted;
     }
 
+    // below updated student object is passed as argument
+    // update is handled by save() only
+//    @Override
+//    public void update(Student theStudent) {
+//        entityManager.merge(theStudent);
+//
+//    }
 }
