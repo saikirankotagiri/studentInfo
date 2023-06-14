@@ -11,12 +11,12 @@ import java.util.List;
 // controller in controller(not in RestController) package is used to send html pages.
 @RestController
 @RequestMapping("/api")
-public class StudentController {
+public class StudentRestController {
 
     private StudentService studentService;
 
     @Autowired
-    public StudentController(StudentService studentService) {
+    public StudentRestController(StudentService studentService) {
         this.studentService = studentService;
     }
 
